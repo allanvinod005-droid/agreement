@@ -1,0 +1,498 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Promise for Shruthi</title>
+    <style>
+        :root {
+            --bg-color: #0a0a1a;
+            --primary-text: #e0e0e0;
+            --secondary-text: #a0a0b0;
+            --gold-accent: #ffd700;
+            --gold-glow: rgba(255, 215, 0, 0.5);
+            --purple-glow: rgba(128, 0, 255, 0.3);
+            --font-heading: 'Georgia', 'Times New Roman', serif;
+            --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            --transition-speed: 0.8s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--primary-text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            height: 100%;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .act {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed);
+            padding: 2rem;
+        }
+
+        .act.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            font-weight: normal;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: var(--gold-accent);
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--gold-glow);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        h3 {
+             font-size: 1.25rem;
+             margin-bottom: 2rem;
+             color: var(--secondary-text);
+        }
+
+        p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-text);
+            max-width: 90%;
+        }
+
+        .system-text {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            color: var(--secondary-text);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: opacity 0.5s;
+            height: 20px;
+        }
+        
+        .system-text.visible {
+            opacity: 1;
+        }
+        
+        .clause-text {
+            font-size: 1.5rem;
+            margin: 2rem 0;
+            min-height: 100px;
+            color: var(--primary-text);
+            font-family: var(--font-heading);
+        }
+
+        .btn {
+            background-color: transparent;
+            border: 2px solid var(--gold-accent);
+            color: var(--gold-accent);
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-family: var(--font-body);
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.2s;
+            margin-top: 1rem;
+            min-width: 200px;
+        }
+
+        .btn:hover {
+            background-color: var(--gold-accent);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--gold-glow);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn.activated {
+            background-color: var(--gold-accent);
+            color: var(--bg-color);
+            box-shadow: 0 0 20px var(--gold-glow);
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .fade-in-text {
+            animation: fadeIn 2s forwards;
+        }
+        
+        .fade-out-text {
+            animation: fadeOut 1s forwards;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            width: 280px;
+        }
+        
+        .checklist li {
+            margin-bottom: 0.75rem;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .checklist li.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .checklist .status {
+            color: var(--gold-accent);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #final-message h2 {
+             font-size: 2.5rem;
+             color: var(--gold-accent);
+             text-shadow: 0 0 20px var(--gold-glow), 0 0 40px var(--gold-glow);
+             animation: intenseGlow 3s infinite alternate;
+        }
+        
+        #final-message p {
+            font-size: 1.5rem;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.75rem;
+            color: var(--secondary-text);
+            opacity: 0.5;
+        }
+        
+        .signature-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        @keyframes intenseGlow {
+            from {
+                text-shadow: 0 0 15px var(--gold-glow), 0 0 25px var(--gold-glow);
+            }
+            to {
+                text-shadow: 0 0 25px var(--gold-glow), 0 0 40px var(--gold-glow), 0 0 50px var(--purple-glow);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.3rem; }
+            h3 { font-size: 1.1rem; }
+            p { font-size: 1rem; }
+            .clause-text { font-size: 1.3rem; }
+            .btn { width: 100%; max-width: 300px; }
+            .checklist { width: 90%; }
+        }
+
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+
+    <div class="container">
+        <!-- ACT 1: SECURE OPENING -->
+        <div id="act1" class="act active">
+            <div id="initial-sequence">
+                <p class="system-text visible">SECURE CONNECTION ESTABLISHED</p>
+                <p class="system-text">Initializing Forever Agreement…</p>
+            </div>
+            <div id="main-title" style="opacity: 0; visibility: hidden;">
+                <h1>Digital Promise Agreement</h1>
+                <p>Between: Shruthi 🤍 Vinod</p>
+                <p>Effective Date: Today</p>
+                <button id="review-btn" class="btn">Review Agreement</button>
+            </div>
+        </div>
+
+        <!-- ACT 2: INTERACTIVE PROMISES -->
+        <div id="act2" class="act">
+            <h3>Please review and activate each clause.</h3>
+            <p id="clause-text" class="clause-text"></p>
+            <button id="promise-btn" class="btn">💛 I Promise</button>
+            <p id="system-feedback" class="system-text"></p>
+        </div>
+        
+        <!-- ACT 3: COMMITMENT VERIFICATION -->
+        <div id="act3" class="act">
+            <h2 id="audit-title">Running Commitment Audit…</h2>
+            <ul id="checklist" class="checklist">
+                <li>Respect: <span class="status">✔️</span></li>
+                <li>Loyalty: <span class="status">✔️</span></li>
+                <li>Effort: <span class="status">✔️</span></li>
+                <li>Emotional Availability: <span class="status">✔️</span></li>
+                <li id="final-check">Forever Intent: <span id="final-check-status" class="status">Analyzing…</span></li>
+            </ul>
+            <button id="signature-btn" class="btn" style="opacity:0; pointer-events: none;">Proceed to Signature</button>
+        </div>
+
+        <!-- ACT 4: SIGNATURE -->
+        <div id="act4" class="act">
+            <h2>Do you accept this agreement?</h2>
+            <p id="amendment-feedback" class="system-text" style="height: 40px;"></p>
+            <div class="signature-buttons">
+                 <button id="accept-btn" class="btn">Accept 💛</button>
+                 <button id="amendment-btn" class="btn">Request Hug Amendment 😌</button>
+            </div>
+        </div>
+
+        <!-- ACT 5: FINAL ACTIVATION -->
+        <div id="act5" class="act">
+            <div id="final-message">
+                <h1>Agreement Activated.</h1>
+                <p>Validity: Lifetime</p>
+                <p>Renewal: Automatic</p>
+                <p style="margin-bottom: 3rem;">Cancellation Policy: Not Available</p>
+
+                <h2>Happy Promise Day, Shruthi 🤍</h2>
+                <p>I promise to stay.</p>
+            </div>
+            <div class="footer">
+                <p>Contract ID: FOREVER-0214</p>
+                <p>Digitally Sealed.</p>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const acts = document.querySelectorAll('.act');
+    const reviewBtn = document.getElementById('review-btn');
+    const promiseBtn = document.getElementById('promise-btn');
+    const signatureBtn = document.getElementById('signature-btn');
+    const acceptBtn = document.getElementById('accept-btn');
+    const amendmentBtn = document.getElementById('amendment-btn');
+
+    // State
+    let currentAct = 1;
+    let currentClauseIndex = 0;
+    
+    const clauses = [
+        "I promise to listen, even when I don’t fully understand.",
+        "I promise to protect what we build.",
+        "I promise to grow, not ego.",
+        "I promise to stay, even on hard days.",
+        "I promise to choose you — not just today, but daily.",
+        "I promise to keep this promise."
+    ];
+    
+    const systemFeedbacks = [
+        "Promise Logged.",
+        "Emotionally Encrypted.",
+        "Forever Stored."
+    ];
+
+    // Functions
+    const transitionToAct = (actNumber) => {
+        const current = document.getElementById(`act${currentAct}`);
+        const next = document.getElementById(`act${actNumber}`);
+        
+        if (current) {
+            current.classList.remove('active');
+        }
+        if (next) {
+            setTimeout(() => {
+                next.classList.add('active');
+                currentAct = actNumber;
+                
+                // Trigger specific act logic
+                if (actNumber === 2) {
+                    displayClause(0);
+                } else if (actNumber === 3) {
+                    runCommitmentAudit();
+                }
+
+            }, 800);
+        }
+    };
+    
+    const displayClause = (index) => {
+        const clauseTextEl = document.getElementById('clause-text');
+        clauseTextEl.classList.add('fade-out-text');
+        
+        setTimeout(() => {
+            clauseTextEl.textContent = clauses[index];
+            clauseTextEl.classList.remove('fade-out-text');
+            clauseTextEl.classList.add('fade-in-text');
+            promiseBtn.classList.remove('activated');
+            promiseBtn.innerHTML = '💛 I Promise';
+        }, 1000);
+    };
+    
+    const showSystemFeedback = () => {
+        const feedbackEl = document.getElementById('system-feedback');
+        let feedbackIndex = 0;
+        
+        const interval = setInterval(() => {
+            feedbackEl.textContent = systemFeedbacks[feedbackIndex];
+            feedbackEl.classList.add('visible');
+            
+            setTimeout(() => feedbackEl.classList.remove('visible'), 1500);
+
+            feedbackIndex++;
+            if (feedbackIndex >= systemFeedbacks.length) {
+                clearInterval(interval);
+                
+                setTimeout(() => {
+                    currentClauseIndex++;
+                    if (currentClauseIndex < clauses.length) {
+                        displayClause(currentClauseIndex);
+                    } else {
+                        // All clauses finished
+                        feedbackEl.textContent = "All promises acknowledged.";
+                        feedbackEl.classList.add('visible');
+                        setTimeout(() => {
+                             feedbackEl.textContent = "Mutual commitment confirmed.";
+                        }, 2000)
+                        setTimeout(() => transitionToAct(3), 4000);
+                    }
+                }, 2000);
+            }
+        }, 2000);
+    };
+
+    const runCommitmentAudit = () => {
+        const checklistItems = document.querySelectorAll('#checklist li');
+        checklistItems.forEach((item, index) => {
+            setTimeout(() => {
+                item.classList.add('visible');
+            }, (index + 1) * 1000);
+        });
+
+        // Dramatic pause for the final item
+        setTimeout(() => {
+            const statusEl = document.getElementById('final-check-status');
+            statusEl.textContent = '✔️ Confirmed.';
+            
+            // Show the final button
+            setTimeout(() => {
+                signatureBtn.style.opacity = '1';
+                signatureBtn.style.pointerEvents = 'auto';
+            }, 1000);
+
+        }, (checklistItems.length + 1) * 1000);
+    };
+
+    // Initial sequence for Act 1
+    const startInitialSequence = () => {
+        const sequenceContainer = document.getElementById('initial-sequence');
+        const systemTexts = sequenceContainer.querySelectorAll('.system-text');
+        const mainTitleContainer = document.getElementById('main-title');
+        
+        setTimeout(() => {
+            systemTexts[0].classList.add('visible');
+        }, 500);
+        
+        setTimeout(() => {
+            systemTexts[1].classList.add('visible');
+        }, 2500);
+
+        setTimeout(() => {
+            sequenceContainer.style.transition = 'opacity 1s';
+            sequenceContainer.style.opacity = '0';
+        }, 4500);
+
+        setTimeout(() => {
+            sequenceContainer.style.display = 'none';
+            mainTitleContainer.style.visibility = 'visible';
+            mainTitleContainer.style.transition = 'opacity 2s';
+            mainTitleContainer.style.opacity = '1';
+        }, 5500);
+    };
+
+    // Event Listeners
+    reviewBtn.addEventListener('click', () => {
+        transitionToAct(2);
+    });
+
+    promiseBtn.addEventListener('click', () => {
+        promiseBtn.classList.add('activated');
+        promiseBtn.innerHTML = '✔️ Promise Accepted';
+        showSystemFeedback();
+    });
+    
+    signatureBtn.addEventListener('click', () => {
+        transitionToAct(4);
+    });
+    
+    amendmentBtn.addEventListener('click', () => {
+        const feedbackEl = document.getElementById('amendment-feedback');
+        feedbackEl.innerHTML = "Amendment Approved.<br>Unlimited hugs added to contract.";
+        feedbackEl.classList.add('visible');
+        amendmentBtn.style.display = 'none';
+    });
+    
+    acceptBtn.addEventListener('click', () => {
+        transitionToAct(5);
+    });
+    
+    // Start the experience
+    startInitialSequence();
+});
+</script>
+
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
